@@ -4,6 +4,7 @@
 from udapi.core.basereader import BaseReader
 from udapi.core.root import Root
 from udapi_agldt.util.agldtfiles import AgldtFiles
+from udapi.core.node import CycleError
 import logging
 
 
@@ -86,7 +87,7 @@ class Agldt(BaseReader):
             try:
                 n.parent = nodes[parents[i]]
                 
-            except ValueError as e:
+            except (ValueError, CycleError) as e:
                 if self.fix_cycles:
                     logging.warning(f"Ignoring a cycle for node {n.address()} (attaching to the root instead):\n")
                     n.parent = root
