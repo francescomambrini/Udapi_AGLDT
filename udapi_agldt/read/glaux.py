@@ -1,29 +1,15 @@
-"""Reader for the AGLDT XML format
+"""Reader for the XML format used in the Glaux project
 """
 
 from udapi.core.basereader import BaseReader
 from udapi.core.root import Root
 from udapi_agldt.util.agldtfiles import AgldtFiles
 from udapi.core.node import CycleError
+from udapi_agldt.read.agldt import Agldt
 import logging
 
 
-class Agldt(BaseReader):
-    """TODO: more documentation here"""
-
-    def __init__(self, files='-', fix_cycles=False, **kwargs):
-        super().__init__(files, **kwargs)
-        self.files = AgldtFiles(files)
-        self.fix_cycles = fix_cycles
-
-
-    @staticmethod
-    def is_multizone_reader():
-        """Can this reader read bundles which contain more zones?.
-
-        This implementation returns always False.
-        """
-        return False
+class Glaux(Agldt):
 
     def read_tree(self, document=None):
         if self.filehandle is None:
@@ -36,7 +22,8 @@ class Agldt(BaseReader):
         root = Root()
         nodes = [root]
         parents = [0]
-        words = s.xpath("word")
+        words = [(i, w) for i, w in enumerate(s.xpath("word"), start=1)]
+        wordic = { w.attrib['id'] : i for i, w  in words }
         if len(words) == 0:
             return None
         root.sent_id = s.attrib.get("id")
@@ -45,12 +32,12 @@ class Agldt(BaseReader):
         else:
             has_cite = False
 
-        for w in words:
+        for i, w in words:
             node = root.create_child()
-            node.ord = int(w.attrib["id"])
+            node.ord = i
             node.form = w.attrib["form"]
             node.feats = '_'
-            h = int(w.attrib["head"]) if w.attrib.get("head") else 0
+            h = wordic.get(w.attrib['head'], 0)
             parents.append(h)
             node.deprel = w.attrib["relation"]
             postag = w.attrib.get("postag")
