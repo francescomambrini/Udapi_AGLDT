@@ -11,10 +11,11 @@ import logging
 class Agldt(BaseReader):
     """TODO: more documentation here"""
 
-    def __init__(self, files='-', fix_cycles=False, **kwargs):
+    def __init__(self, files='-', fix_cycles=False, fix_missing_heads=False, **kwargs):
         super().__init__(files, **kwargs)
         self.files = AgldtFiles(files)
         self.fix_cycles = fix_cycles
+        self.fix_missing_heads = fix_missing_heads
 
 
     @staticmethod
@@ -92,6 +93,13 @@ class Agldt(BaseReader):
                     logging.warning(f"Ignoring a cycle for node {n.address()} (attaching to the root instead):\n")
                     n.parent = root
                 else:
+                    raise
+            except IndexError:
+                if self.fix_missing_heads:
+                    logging.warning(f"Ignoring missing head for node {n.address()}, (attaching to the root instead):\n")
+                    n.parent = root
+                else:
+                    logging.warning(f"Missing head at node {n.address()} - {n.form}, (use fix_missing_head):\n")
                     raise
 
         return root
