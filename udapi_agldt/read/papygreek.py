@@ -2,6 +2,7 @@
 
 from udapi_agldt.read.agldt import Agldt
 from udapi.core.root import Root
+from udapi.core.node import CycleError
 import logging
 
 
@@ -81,7 +82,7 @@ class Papygreek(Agldt):
             try:
                 n.parent = nodes[parents[i]]
 
-            except ValueError as e:
+            except (ValueError, CycleError) as e:
                 if self.fix_cycles:
                     logging.warning(f"Ignoring a cycle for node {n.address()} (attaching to the root instead):\n")
                     n.parent = root
