@@ -1,6 +1,3 @@
-"""Reader for the XML format used in the Glaux project
-"""
-
 from udapi.core.basereader import BaseReader
 from udapi.core.root import Root
 from udapi_agldt.util.agldtfiles import AgldtFiles
@@ -37,9 +34,9 @@ class Glaux(Agldt):
             node.ord = i
             node.form = w.attrib["form"]
             node.feats = '_'
-            h = wordic.get(w.attrib['head'], 0)
+            h = wordic.get(w.attrib.get('head', 0), 0)
             parents.append(h)
-            node.deprel = w.attrib["relation"]
+            node.deprel = w.attrib.get("relation")
             postag = w.attrib.get("postag")
             lemma = w.attrib.get("lemma")
             if has_cite:
